@@ -56,5 +56,15 @@ class TestData(val dataSource: DataSource) {
 		}
 	}
 
+  def loadResources(names: Traversable[String]) {
+    val classLoader = Thread.currentThread.getContextClassLoader
+		for(name <- names) {
+      classLoader.getResourceAsStream(name) match {
+        case null => throw new Exception("unable to find resource with name: " + name)
+        case in => new TestDataResource(this).loadFrom(in,name)
+      }
+		}
+	}
+
 	override def toString = "TestData()"
 }

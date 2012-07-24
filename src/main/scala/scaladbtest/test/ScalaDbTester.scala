@@ -2,7 +2,8 @@ package scaladbtest.test
 
 import javax.sql.DataSource
 import scaladbtest.model.TestData
-import scalaj.collection.Imports._
+//import scalaj.collection.Imports._
+import scala.collection.JavaConversions._
 
 /*
 * Copyright 2010 Ken Egervari
@@ -31,12 +32,25 @@ class ScalaDbTester(
 	
 	val testData = new TestData(dataSource)
 
+	def onBeforeResource(name:String) {
+		onBeforeResource(List(name))
+	}
+
+	def onBeforeResource(names:java.util.Collection[String]) {
+		onBeforeResource(names)
+	}
+
+	def onBeforeResource(names: Traversable[String]) {
+		testData.loadResources(names)
+		testData.insertAll()
+	}
+
 	def onBefore(filename: String) {
 		onBefore(List(filename))
 	}
 
 	def onBefore(filenames: java.util.Collection[String]) {
-		onBefore(filenames.asScala)
+		onBefore(filenames)
 	}
 
 	def onBefore(filenames: Traversable[String]) {

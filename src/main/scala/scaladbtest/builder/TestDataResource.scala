@@ -4,6 +4,7 @@ import util.parsing.combinator.JavaTokenParsers
 import scaladbtest.model.value.Value
 import io.Source
 import scaladbtest.model._
+import java.io.InputStream
 
 /*
 * Copyright 2010 Ken Egervari
@@ -76,12 +77,16 @@ class TestDataResource(val testData: TestData) extends JavaTokenParsers {
 		"$null" |
 		"null" ^^ ("$" + _)
 
-	def loadFrom(filename: String) {
-		val source = Source.fromFile(filename).getLines.filterNot(_.startsWith("#")).mkString("\n")
-		val parseResult = parseAll(tables, source)
-		if(!parseResult.successful) {
-			throw new TestDataParseException(parseResult.toString)
-		}
-	}
+	def loadFrom(filename: String):ParseResult[Any] = loadFrom(Source.fromFile(filename),filename)
 
+	def loadFrom(in: InputStream,name: String):ParseResult[Any] = loadFrom(Source.fromInputStream(in),name)
+
+	def loadFrom(source: Source,name: String):ParseResult[Any] = {
+		val filtered = source.getLines.filterNot(_.startsWith("#")).mkString("\n")
+                val parseResult = parseAll(tables, filtered)
+                if(!parseResult.successful) {
+                        throw new TestDataParseException(parseResult.toString)
+                }
+		parseResult
+        }
 }
