@@ -28,6 +28,10 @@ object TestDataResource {
 		stringLiteral.substring(1, stringLiteral.length - 1)
 	}
 
+  def removeTripleQuotes(stringLiteral: String) = {
+		stringLiteral.substring(3, stringLiteral.length - 3)
+	}
+
 }
 
 class TestDataResource(val testData: TestData) extends JavaTokenParsers {
@@ -65,7 +69,11 @@ class TestDataResource(val testData: TestData) extends JavaTokenParsers {
 		case n ~ ":" ~ v => Column(n.toString, Value.parse(v))
 	}
 
+  private val tripleQuotedStringLiteral =
+      ("\"\"\""+"""(\n|[^\p{Cntrl}\\]|\\[\\/bfnrt]|\\u[a-fA-F0-9]{4})*?"""+"\"\"\"").r
+
 	def value: Parser[String] =
+    tripleQuotedStringLiteral ^^ (removeTripleQuotes(_)) |
 		stringLiteral ^^ (removeQuotes(_)) |
 		floatingPointNumber |
 		"true" ^^ (s => "$true") |
